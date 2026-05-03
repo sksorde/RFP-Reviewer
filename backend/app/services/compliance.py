@@ -84,6 +84,7 @@ Return only this JSON format:
 """
 
     try:
+        print("🤖 Sending to Ollama...Kindly wait for response...")
         output = call_llm(prompt)
 
         print("✅ Raw LLM Response:")
