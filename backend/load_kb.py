@@ -1,7 +1,11 @@
 import os
+import sys
+import io
 from app.services.rag import embed
 from app.db import insert_chunk
 from app.utils.extractor import extract_text
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 KB_PATH = r"C:\SKS\react\backend\knowledge_base"
 
@@ -10,7 +14,7 @@ def clean_text(text):
     return text.replace("\x00", "").strip()
 
 
-def load():
+def load(chunk_size_tokens, overlap_tokens):
     total_chunks = 0
 
     print(f"Checking KB path: {os.path.abspath(KB_PATH)}")
@@ -20,7 +24,7 @@ def load():
         return
 
     for root, _, files in os.walk(KB_PATH):
-        print(f"\n📂 Folder: {root}")
+        print(f"\n Folder: {root}")
         print(f"Files found: {files}")
 
         for file in files:
@@ -50,10 +54,12 @@ def load():
                             embedding = embed(chunk)
 
                             insert_chunk(
-                                chunk,
-                                embedding,
+                                text,
+                                embed(text),
                                 file,
-                                category
+                                category,
+                                chunk_size_tokens,
+                                overlap_tokens
                             )
 
                             total_chunks += 1
@@ -70,4 +76,6 @@ def load():
 
 
 if __name__ == "__main__":
-    load()
+    chunk_size_tokens = int(sys.argv[1])
+    overlap_tokens = int(sys.argv[2])
+    load(chunk_size_tokens, overlap_tokens)
