@@ -2,41 +2,51 @@ import { useState } from "react";
 
 function BuildRefreshIndexButton() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleBuildRefreshIndex = async () => {
+  const handleRefreshKB = async () => {
     setLoading(true);
-    setError("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/build-refresh-index", {
-        method: "POST",
-      });
+      const res = await fetch(
+        "http://127.0.0.1:8000/build-refresh-index",
+        {
+          method: "POST",
+        }
+      );
 
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.message);
-      } else {
-        setError(data.error || "Unknown error");
+      const text = await res.text();
+
+      console.log("Raw Backend Response:", text);
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("Backend returned invalid JSON");
       }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+
+      if (data.error) {
+        alert(data.error);
+      } else {
+        alert(data.message || "Knowledge Base refreshed successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Frontend Error: " + error.message);
     }
+
+    setLoading(false);
   };
 
   return (
-    <div>
-      <button
-        onClick={handleBuildRefreshIndex}
-        disabled={loading}
-        style={{ padding: "14px", backgroundColor: "#111827", color: "white", borderRadius: "10px" }}
-      >
-        {loading ? "Refreshing Index..." : "Build / Refresh Index"}
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+    <button
+      className="refresh-btn"
+      onClick={handleRefreshKB}
+      disabled={loading}
+    >
+      {loading ? "Refreshing..." : "Build/Refresh Knowledge Base"}
+    </button>
   );
 }
 
