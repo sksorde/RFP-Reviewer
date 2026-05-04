@@ -16,18 +16,22 @@ def get_conn():
 # KB CHUNKS
 # =========================
 
-def insert_chunk(text, embedding, source_file, category):
+def insert_chunk(text, embedding, source_file, category, chunk_size_tokens, overlap_tokens):
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute(
-        """
-        INSERT INTO kb_chunks
-        (content, embedding, source_file, category)
-        VALUES (%s, %s, %s, %s)
-        """,
-        (text, embedding, source_file, category)
-    )
+    # Split the text based on chunk size and overlap
+    chunks = split_into_chunks_with_overlap(text, chunk_size_tokens, overlap_tokens)
+    
+    for chunk in chunks:
+        cur.execute(
+            """
+            INSERT INTO kb_chunks
+            (content, embedding, source_file, category)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (chunk, embedding, source_file, category)
+        )
 
     conn.commit()
     cur.close()
@@ -111,3 +115,15 @@ def save_cached_result(requirement_hash, requirement, result):
 
     cur.close()
     conn.close()
+
+# =========================
+# CHUNKING FUNCTIONS
+# =========================
+
+def split_into_chunks_with_overlap(text, chunk_size_tokens, overlap_tokens):
+    words = text.split()
+    chunks = []
+    for i in range(0, len(words), chunk_size_tokens - overlap_tokens):
+        chunk = words[i:i + chunk_size_tokens]
+        chunks.append(" ".join(chunk))
+    return chunks
