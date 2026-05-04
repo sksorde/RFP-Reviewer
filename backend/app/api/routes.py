@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, Form
+import sys
 import subprocess
 from app.services.compliance import evaluate
 from app.utils.extractor import extract_text
@@ -11,10 +12,12 @@ router = APIRouter()
 
 @router.post("/build-refresh-index")
 async def build_refresh_index():
+    chunk_size_tokens = 2500  # or get from frontend
+    overlap_tokens = 500      # or get from frontend
     try:
         # Run the load_kb.py script
         result = subprocess.run(
-            ["python", "backend/load_kb.py"], 
+            [sys.executable, "load_kb.py", str(chunk_size_tokens), str(overlap_tokens)], 
             check=True,  # Ensures that any error will raise an exception
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
