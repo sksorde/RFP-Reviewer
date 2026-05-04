@@ -14,6 +14,7 @@ function App() {
 
   const handleReview = async () => {
     if ((!questionFile && !questionText) || (!answerFile && !answerText)) {
+      console.log(data.error);
       alert("Please upload files or provide both Question and Draft Answer text.");
       return;
     }
@@ -21,9 +22,16 @@ function App() {
     setLoading(true);
 
     try {
+      const chunkSizeTokens = 2500; // Retrieve from the UI state
+      const overlapTokens = 500;    // Retrieve from the UI state
+      const topKChunks = 10;        // Retrieve from the UI state
+
       const data = await uploadFiles(
         questionFile || questionText,
-        answerFile || answerText
+        answerFile || answerText,
+        chunkSizeTokens,
+        overlapTokens,
+        topKChunks
       );
 
       if (data.error) {
@@ -56,11 +64,11 @@ function App() {
             <label>DOCS_PATH Folder</label>
             <input
               type="text"
-              value="C:\\Users\\User\\OneDrive"
+              value="C:\SKS\react\backend\knowledge_base"
               readOnly
             />
           </div>
-
+{/* 
           <div className="input-group">
             <label>INDEX_PATH Folder</label>
             <input
@@ -68,7 +76,7 @@ function App() {
               value="./index"
               readOnly
             />
-          </div>
+          </div> */}
 
           <div className="metric-box">
             <Metric label="Chunk size tokens" value="2500" />
