@@ -49,8 +49,8 @@ def evaluate(req, response):
     # RAG EVIDENCE
     # =========================
 
-    evidence = retrieve(req)
-
+    #evidence = retrieve(req)   --SKS: Changed for tokens
+    evidence = retrieve(req, chunk_size_tokens, overlap_tokens)
     print(f"📄 Evidence retrieved: {len(evidence)} chunks")
 
     prompt = f"""
