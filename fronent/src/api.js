@@ -1,4 +1,4 @@
-export async function uploadFiles(rfp, response) {
+export async function uploadFiles(rfp, response, chunkSizeTokens, overlapTokens, topKChunks) {
   const formData = new FormData();
 
   if (typeof rfp === "string") {
@@ -12,6 +12,10 @@ export async function uploadFiles(rfp, response) {
   } else {
     formData.append("response", response); // Otherwise add the file
   }
+
+  formData.append("chunk_size_tokens", chunkSizeTokens);
+  formData.append("overlap_tokens", overlapTokens);
+  formData.append("top_k_chunks", topKChunks);
 
   const res = await fetch("http://127.0.0.1:8000/review", {
     method: "POST",
