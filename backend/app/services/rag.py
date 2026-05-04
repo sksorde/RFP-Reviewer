@@ -21,10 +21,10 @@ def embed(text):
     return str(vector)
 
 
-def retrieve(query):
+def retrieve(query, chunk_size_tokens, overlap_tokens):
     query_embedding = embed(query)
 
-    rows = search_chunks(query_embedding)
+    rows = search_chunks(query_embedding, k=10)
 
     return [
         {
